@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import About from './pages/About';
@@ -11,103 +11,88 @@ import Alert from './components/ui/Alert.jsx';
 
 import axios from 'axios';
 
+import GithubState from './context/github/GithubState';
+
 import './App.css';
 
-class App extends React.Component {
-  state = {
-    users: [],
-    user: {},
-    repo: [],
-    isLoading: false,
-    error: '',
-    alert: null,
-  };
+const App = () => {
+  const [users, setUsers] = useState([]);
+  const [user, setUser] = useState({});
+  const [repo, setRepo] = useState([]);
+  const [isLoading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [alert, setAlert] = useState(null);
 
   // search users
-  searchUsers = async text => {
-    this.setState({
-      isLoading: true,
-    });
+  const searchUsers = async text => {
+    setLoading(true);
 
     try {
       const res = await axios.get(
         `https://api.github.com/search/users?q=${text}&client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
       );
 
-      this.setState({
-        isLoading: false,
-        users: res.data.items,
-        error: '',
-      });
+      setLoading(false);
+      setUsers(res.data.items);
+      setError('');
     } catch (error) {
-      this.setState({ isLoading: false, error: '找不到' });
+      setLoading(false);
+      setError('找不到');
     }
   };
 
   // get single user
-  getUser = async username => {
-    this.setState({
-      isLoading: true,
-    });
+  const getUser = async username => {
+    setLoading(true);
 
     try {
       const res = await axios.get(
         `https://api.github.com/users/${username}?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
       );
 
-      this.setState({
-        isLoading: false,
-        user: res.data,
-        error: '',
-      });
+      setLoading(false);
+      setUser(res.data);
+      setError('');
     } catch (error) {
-      this.setState({ isLoading: false });
+      setLoading(false);
     }
   };
 
   // get user repos
-  getUserRepo = async username => {
-    this.setState({
-      isLoading: true,
-    });
+  const getUserRepo = async username => {
+    setLoading(true);
 
     try {
       const res = await axios.get(
         `https://api.github.com/users/${username}/repos?per_page=5&sort=created:asc&client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
       );
 
-      this.setState({
-        isLoading: false,
-        repo: res.data,
-        error: '',
-      });
+      setLoading(false);
+      setRepo(res.data);
+      setError('');
     } catch (error) {
-      this.setState({ isLoading: false });
+      setLoading(false);
     }
   };
 
   // set alert and clear alert
-  setAlert = (msg, type) => {
+  const handleAlert = (msg, type) => {
     if (type === 'clearAlert') {
-      this.setState({ alert: null });
+      setAlert(null);
       return;
     }
 
-    this.setState({
-      alert: {
-        msg,
-        type,
-      },
-    });
+    setAlert({ msg, type });
   };
 
   // clear users from state
-  clearUsers = () => this.setState({ users: [], isLoading: false });
+  const clearUsers = () => {
+    setUsers([]);
+    setLoading(false);
+  };
 
-  render() {
-    const { users, user, repo, isLoading, error, alert } = this.state;
-
-    return (
+  return (
+    <GithubState>
       <Router>
         <div className="App">
           <NavBar />
@@ -122,10 +107,10 @@ class App extends React.Component {
                 render={props => (
                   <Fragment>
                     <Search
-                      searchUsers={this.searchUsers}
-                      clearUsers={this.clearUsers}
+                      searchUsers={searchUsers}
+                      clearUsers={clearUsers}
                       showClearBtn={users.length > 0 ? true : false}
-                      setAlert={this.setAlert}
+                      setAlert={handleAlert}
                     />
                     <Users users={users} isLoading={isLoading} error={error} />
                   </Fragment>
@@ -142,8 +127,8 @@ class App extends React.Component {
                   <SingleUser
                     user={user}
                     repo={repo}
-                    getUser={this.getUser}
-                    getUserRepo={this.getUserRepo}
+                    getUser={getUser}
+                    getUserRepo={getUserRepo}
                     isLoading={isLoading}
                     {...props}
                   />
@@ -153,8 +138,8 @@ class App extends React.Component {
           </div>
         </div>
       </Router>
-    );
-  }
-}
+    </GithubState>
+  );
+};
 
 export default App;
