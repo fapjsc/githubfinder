@@ -1,20 +1,25 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import GithubContext from '../../context/github/GithubContext';
+import AlertContext from '../../context/alert/AlertContext';
 
-import PropTypes from 'prop-types';
+const Search = () => {
+  const githubContext = useContext(GithubContext);
+  const alertContext = useContext(AlertContext);
+  const { users, searchUsers, clearUsers } = githubContext;
+  const { handleAlert } = alertContext;
 
-const Search = ({ showClearBtn, clearUsers, setAlert, searchUsers }) => {
   const [text, setText] = useState('');
 
   const handleInput = e => {
     setText(e.target.value);
 
-    setAlert(null, 'clearAlert');
+    handleAlert(null, 'clearAlert');
   };
 
   const onSubmit = async e => {
     e.preventDefault();
     if (text === '') {
-      setAlert('please type something...', 'light');
+      handleAlert('please type something...', 'light');
     } else {
       searchUsers(text);
       setText('');
@@ -39,19 +44,13 @@ const Search = ({ showClearBtn, clearUsers, setAlert, searchUsers }) => {
           className="btn btn-dark btn-block"
         />
       </form>
-      {showClearBtn && (
+      {users.length > 0 && (
         <button className="btn btn-light btn-block" onClick={clearUsers}>
           Clear
         </button>
       )}
     </div>
   );
-};
-
-Search.propTypes = {
-  searchUsers: PropTypes.func.isRequired, // 快捷鍵 ptfr
-  clearUsers: PropTypes.func.isRequired,
-  showClearBtn: PropTypes.bool.isRequired,
 };
 
 export default Search;

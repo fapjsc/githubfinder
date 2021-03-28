@@ -1,12 +1,14 @@
-import { Fragment, useEffect } from 'react';
-
-import PropTypes from 'prop-types';
+import { Fragment, useEffect, useContext } from 'react';
+import GithubContext from '../../context/github/GithubContext';
 import { Link } from 'react-router-dom';
 
 import RepoList from '../repo/RepoList';
 import Spinner from '../ui/Spinner';
 
-const SingleUser = ({ isLoading, repo, user, getUser, getUserRepo, match }) => {
+const SingleUser = ({ match }) => {
+  const githubContext = useContext(GithubContext);
+  const { user, getUser, loading, repo, getUserRepo } = githubContext;
+
   const {
     name,
     avatar_url,
@@ -29,7 +31,7 @@ const SingleUser = ({ isLoading, repo, user, getUser, getUserRepo, match }) => {
     // eslint-disable-next-line
   }, []);
 
-  if (!isLoading) {
+  if (!loading) {
     return (
       <Fragment>
         <Link to="/" className="btn btn-light">
@@ -111,12 +113,6 @@ const SingleUser = ({ isLoading, repo, user, getUser, getUserRepo, match }) => {
   }
 };
 
-SingleUser.propTypes = {
-  isLoading: PropTypes.bool.isRequired,
-  getUser: PropTypes.func.isRequired,
-  getUserRepo: PropTypes.func.isRequired,
-  user: PropTypes.object.isRequired,
-  repo: PropTypes.array.isRequired,
-};
+SingleUser.propTypes = {};
 
 export default SingleUser;

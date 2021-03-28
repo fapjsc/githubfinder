@@ -30,3 +30,5 @@ getUserRepo(match.params.login);
 }, []);
 
 這裏會得到一個警告，要求在 array 添加一個依賴，比如 getUser，但這樣會形成一個迴圈，因此可以在上面添加一個註釋，取消 eslint 的警告 ( //eslint-disable-next-line)
+
+重構爲使用 useContext 作數據管理

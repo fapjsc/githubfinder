@@ -1,10 +1,17 @@
-import UserItem from './UserItem';
-import { v4 as uuidv4 } from 'uuid';
-import Spinner from '../ui/Spinner';
-import PropTypes from 'prop-types';
+import { useContext } from 'react';
 
-const Users = ({ users, isLoading, error }) => {
-  if (isLoading) {
+import UserItem from './UserItem';
+import GithubContext from '../../context/github/GithubContext';
+
+import { v4 as uuidv4 } from 'uuid';
+
+import Spinner from '../ui/Spinner';
+
+const Users = () => {
+  const githubContext = useContext(GithubContext);
+  const { loading, users, error } = githubContext;
+
+  if (loading) {
     return <Spinner />;
   } else if (error !== '') {
     return <h2>{error}</h2>;
@@ -23,12 +30,6 @@ const userStyle = {
   display: 'grid',
   gridTemplateColumns: 'repeat(4, 1fr)',
   gridColumnGap: '1rem',
-};
-
-Users.propTypes = {
-  users: PropTypes.array.isRequired,
-  isLoading: PropTypes.bool.isRequired,
-  error: PropTypes.string.isRequired,
 };
 
 export default Users;
